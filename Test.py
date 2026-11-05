@@ -1,52 +1,53 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
 
-# 1. Label Mapping
-ACTIVITY_NAMES = {
-    1: 'WALKING', 2: 'WALKING_UPSTAIRS', 3: 'WALKING_DOWNSTAIRS',
-    4: 'SITTING', 5: 'STANDING', 6: 'LAYING'
-}
+base_dir = 'UCI HAR Dataset/UCI HAR Dataset/'
 
-# 2. Load 3-Axis Signals & Target Labels
-base_path = 'UCI HAR Dataset/UCI HAR Dataset/train/'
-acc_x = pd.read_csv(
-    base_path + 'Inertial Signals/body_acc_x_train.txt',
-    delim_whitespace=True,
-    header=None,
-).values
-acc_y = pd.read_csv(
-    base_path + 'Inertial Signals/body_acc_y_train.txt',
-    delim_whitespace=True,
-    header=None,
-).values
-acc_z = pd.read_csv(
-    base_path + 'Inertial Signals/body_acc_z_train.txt',
-    delim_whitespace=True,
-    header=None,
-).values
-labels = pd.read_csv(
-    base_path + 'y_train.txt', delim_whitespace=True, header=None
-).values.ravel()
+# 1. Load all 9 inertial signal channels into shape (N, 128, 9)
+def load_split_3d(dataset_path, split):
+    signals = [
+        'body_acc_x', 'body_acc_y', 'body_acc_z',
+        'body_gyro_x', 'body_gyro_y', 'body_gyro_z',
+        'total_acc_x', 'total_acc_y', 'total_acc_z'
+    ]
+    channels = []
+    for sig in signals:
+        file_path = f"{dataset_path}{split}/Inertial Signals/{sig}_{split}.txt"
+        # Using sep=r'\s+' handles variable-length whitespace delimiters
+        data = pd.read_csv(file_path, sep=r'\s+', header=None).values
+        channels.append(data)
+    
+    return np.stack(channels, axis=-1)
 
-# 3. Create Stacked Subplots (6 Activities x 3 Axes)
-fig, axes = plt.subplots(6, 3, figsize=(15, 12), sharey=True)
+# 2. Load Train/Test sets & Targets
+print("Loading signal data...")
+X_train = load_split_3d(base_dir, 'train')  # (7352, 128, 9)
+X_test  = load_split_3d(base_dir, 'test')   # (2947, 128, 9)
 
-for act_id in range(1, 7):
-    # Find the index of the first window matching this activity
-    sample_idx = np.where(labels == act_id)[0][0]
-    row = act_id - 1
+y_train = pd.read_csv(base_dir + 'train/y_train.txt', sep=r'\s+', header=None).values.ravel()
+y_test  = pd.read_csv(base_dir + 'test/y_test.txt', sep=r'\s+', header=None).values.ravel()
 
-    axes[row, 0].plot(acc_x[sample_idx], color='r')
-    axes[row, 0].set_ylabel(ACTIVITY_NAMES[act_id], fontsize=9)
-    axes[row, 1].plot(acc_y[sample_idx], color='g')
-    axes[row, 2].plot(acc_z[sample_idx], color='b')
+# 3. Step 3: Compute basic statistics (Mean & Std across axis=1)
+def extract_baseline_features(X_3d):
+    means = np.mean(X_3d, axis=1)  # (N, 9)
+    stds  = np.std(X_3d, axis=1)   # (N, 9)
+    return np.hstack([means, stds]) # (N, 18)
 
-    if row == 0:
-        axes[row, 0].set_title('X-Axis Acceleration')
-        axes[row, 1].set_title('Y-Axis Acceleration')
-        axes[row, 2].set_title('Z-Axis Acceleration')
+X_train_baseline = extract_baseline_features(X_train)
+X_test_baseline  = extract_baseline_features(X_test)
 
-plt.xlabel('Time Step (0 to 127 @ 50 Hz)')
-plt.tight_layout()
-plt.show()
+print(f"X_train_baseline shape: {X_train_baseline.shape}")
+print(f"X_test_baseline shape:  {X_test_baseline.shape}")
+
+# 4. Step 4: Train Baseline Logistic Regression
+print("Training Logistic Regression...")
+baseline_model = LogisticRegression(max_iter=1000, random_state=42)
+baseline_model.fit(X_train_baseline, y_train)
+
+# Evaluate accuracy
+y_pred = baseline_model.predict(X_test_baseline)
+accuracy = accuracy_score(y_test, y_pred)
+
+print(f"\nBaseline Test Accuracy: {accuracy * 100:.2f}%")
