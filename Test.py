@@ -29,6 +29,7 @@ X_test  = load_split_3d(base_dir, 'test')   # (2947, 128, 9)
 y_train = pd.read_csv(base_dir + 'train/y_train.txt', sep=r'\s+', header=None).values.ravel()
 y_test  = pd.read_csv(base_dir + 'test/y_test.txt', sep=r'\s+', header=None).values.ravel()
 
+
 # 3. Step 3: Compute basic statistics (Mean & Std across axis=1)
 def extract_baseline_features(X_3d):
     means = np.mean(X_3d, axis=1)  # (N, 9)
@@ -78,35 +79,44 @@ plt.ylabel('True Label')
 plt.tight_layout()
 plt.show()
 
-# ==========================================
-# 5. LIVE PREDICTION TEST (SINGLE INFERENCE)
-# ==========================================
-print("\n--- Live Prediction Test ---")
+# ========================================================
+# 5. MODEL COMPARISON (Logistic Regression vs RF vs GBM)
+# ========================================================
+from sklearn.ensemble import (
+    GradientBoostingClassifier,
+    HistGradientBoostingClassifier,
+    RandomForestClassifier,
+)
 
-# Dictionary to map numerical IDs back to readable text
-activity_map = {
-    1: 'WALKING', 2: 'WALKING_UPSTAIRS', 3: 'WALKING_DOWNSTAIRS', 
-    4: 'SITTING', 5: 'STANDING', 6: 'LAYING'
+models = {
+    'Logistic Regression': LogisticRegression(max_iter=2000, random_state=42),
+    'Random Forest': RandomForestClassifier(
+        n_estimators=100, max_depth=15, random_state=42
+    ),
+    'Gradient Boosting': HistGradientBoostingClassifier(
+        max_iter=100, learning_rate=0.1, random_state=42
+    ),
 }
 
-# 1. Pick any random window from the test set (let's use index 42)
-sample_index = 42
+results = {}
 
-# 2. Isolate that single 128-timestep window. 
-# We use slicing [42:43] instead of [42] so the array keeps its 3D shape (1, 128, 9)
-# because our feature extractor expects a batch of signals.
-single_raw_signal = X_test[sample_index:sample_index+1] 
+print('\n' + '=' * 55)
+print('         MODEL COMPARISON ON 40 DSP FEATURES         ')
+print('=' * 55)
 
-# 3. Compress the 128 time-steps into our 18 baseline features
-single_features = extract_baseline_features(single_raw_signal)
+for name, model in models.items():
+    print(f'Training {name}...')
+    # Train model on scaled DSP features
+    model.fit(X_train_scaled, y_train)
 
-# 4. Ask the model to predict what activity this is
-predicted_id = baseline_model.predict(single_features)[0]
-actual_id = y_test[sample_index]
+    # Evaluate on unseen test set
+    y_pred = model.predict(X_test_scaled)
+    acc = accuracy_score(y_test, y_pred)
+    results[name] = acc
 
-print(f"Analyzing sensor window #{sample_index}...")
-print(f"-> Model Predicted: {activity_map[predicted_id]}")
-print(f"-> Actual Truth:    {activity_map[actual_id]}")
-
-# Try changing 'sample_index' to other numbers (like 0, 150, or 2000) 
-# to test different activities!
+print('\n' + '-' * 45)
+print(f"{'Classifier Model':<25} | {'Test Accuracy':<15}")
+print('-' * 45)
+for name, acc in results.items():
+    print(f'{name:<25} | {acc * 100:.2f}%')
+print('-' * 45)
