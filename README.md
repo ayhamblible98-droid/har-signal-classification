@@ -83,12 +83,12 @@ Features were added group by group to measure what each contributes.
 
 | Feature set | Test accuracy |
 |---|---|
-| Mean + std (18 features) | ?% |
-| + Magnitude (22 features) | ?% |
-| + Dominant frequency (31 features) | ?% |
-| + Spectral energy (40 features) | ?% |
+| Mean + std (18 features) | 78.52% |
+| + Magnitude (22 features) | 83.68% |
+| + Dominant frequency (31 features) | 87.31% |
+| + Spectral energy (40 features) | 87.61% |
 
-> An early unscaled baseline (mean + std, 18 features) reached 76.48%. It is not directly comparable to the table above because it used no feature scaling. The ablation table is the fair comparison.
+> An early unscaled baseline (mean + std, 18 features) reached 78.52%. It is not directly comparable to the table above because it used no feature scaling. The ablation table is the fair comparison.
 
 ### 4.3 Per-class performance (Gradient Boosting)
 
@@ -96,7 +96,20 @@ Features were added group by group to measure what each contributes.
 
 ```
 (paste classification report here)
-```
+--- Classification Report (Gradient Boosting) ---
+              precision    recall  f1-score   support
+
+     WALKING       0.91      0.90      0.91       496
+    UPSTAIRS       0.87      0.89      0.88       471
+  DOWNSTAIRS       0.88      0.87      0.87       420
+     SITTING       0.88      0.80      0.84       491
+    STANDING       0.83      0.90      0.86       532
+      LAYING       1.00      1.00      1.00       537
+
+    accuracy                           0.90      2947
+   macro avg       0.90      0.89      0.89      2947
+weighted avg       0.90      0.90      0.90      2947
+
 
 ### 4.4 Confusion matrix
 
