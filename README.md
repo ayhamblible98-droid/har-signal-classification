@@ -113,7 +113,7 @@ weighted avg       0.90      0.90      0.90      2947
 ```
 ### 4.4 Confusion matrix
 
-![Normalized confusion matrix](results/confusion_matrix.png)
+![Normalized confusion matrix](results.md)
 
 ## 5. Analysis
 
