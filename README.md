@@ -92,8 +92,6 @@ Features were added group by group to measure what each contributes.
 
 ### 4.3 Per-class performance (Gradient Boosting)
 
-<!-- TODO: paste the classification report printed by section 8 of the script -->
-
 ```
 (paste classification report here)
 --- Classification Report (Gradient Boosting) ---
@@ -135,8 +133,8 @@ Across activities, `LAYING` is classified with 1.00 precision and recall because
 
 ```bash
 # 1. Clone and enter the repository
-git clone <your-repo-url>
-cd <your-repo-folder>
+git clone <[your-repo-url](https://github.com/ayhamblible98-droid/har-signal-classification.git)>
+cd <har-signal-classification>
 
 # 2. Install dependencies
 pip install -r requirements.txt
