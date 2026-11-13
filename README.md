@@ -88,7 +88,7 @@ Features were added group by group to measure what each contributes.
 | + Dominant frequency (31 features) | 87.31% |
 | + Spectral energy (40 features) | 87.61% |
 
-> An early unscaled baseline (mean + std, 18 features) reached 78.52%. It is not directly comparable to the table above because it used no feature scaling. The ablation table is the fair comparison.
+> An early unscaled baseline (mean + std, 18 features) reached 76.52%. It is not directly comparable to the table above because it used no feature scaling. The ablation table is the fair comparison.
 
 ### 4.3 Per-class performance (Gradient Boosting)
 
