@@ -117,14 +117,11 @@ weighted avg       0.90      0.90      0.90      2947
 
 ## 5. Analysis
 
-<!-- TODO: write 4-6 sentences IN YOUR OWN WORDS, based on the tables above. Suggested questions:
-     - Which feature group gave the biggest improvement in the ablation, and did any group not help?
-     - Which activities are most often confused in the confusion matrix?
-     - Why might those pairs be hard (think: phone on the waist, similar orientation, similar rhythm)?
-     - Why does a simple linear model come close to the stronger models?
--->
+In the feature ablation study, adding **acceleration magnitude** delivered the largest single jump in accuracy (+5.16 percentage points, from 78.52% to 83.68%) by making signal level and movement intensity invariant to smartphone tilt. **Dominant frequency** added another +3.63 percentage points (reaching 87.31%), separating dynamic locomotion via step cadence, while **spectral energy** contributed a marginal +0.30 percentage points—likely because total signal power overlaps heavily with standard deviation (Parseval's theorem).
 
-(Write your interpretation here.)
+Across activities, `LAYING` is classified with 1.00 precision and recall because a horizontal torso rotates the gravity vector onto a completely different axis of `total_acc` than any upright posture. By contrast, `SITTING` (0.80 recall) and `STANDING` (0.83 precision) show the most confusion: both are stationary postures with near-zero dynamic motion and almost identical waist-mounted phone orientation, leaving very little difference in gravity projection or frequency content. Similarly, `WALKING_UPSTAIRS` and `WALKING_DOWNSTAIRS` exhibit moderate overlap due to shared rhythmic stepping frequencies. Finally, Logistic Regression (87.61%) performs within two percentage points of Gradient Boosting (89.62%) because the engineered physical features—gravity axes, oscillation amplitude, and dominant step frequency—already linearize the class boundaries before reaching the classifier.
+
+
 
 ## 6. Limitations
 
