@@ -110,7 +110,7 @@ Features were added group by group to measure what each contributes.
    macro avg       0.90      0.89      0.89      2947
 weighted avg       0.90      0.90      0.90      2947
 
-
+```
 ### 4.4 Confusion matrix
 
 ![Normalized confusion matrix](results/confusion_matrix.png)
